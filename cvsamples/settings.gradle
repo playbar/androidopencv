@@ -1,2 +1,4 @@
 include ':face-detection'
+include ':puzzle'
 include ':sdk'
+include ':app'
