@@ -34,4 +34,5 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
     compile project(':sdk')
+    compile 'com.android.support:appcompat-v7:23.1.1'
 }

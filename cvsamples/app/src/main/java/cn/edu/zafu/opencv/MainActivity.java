@@ -31,8 +31,7 @@ public class MainActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(
-                        R.drawable.ic)).getBitmap();
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.ic)).getBitmap();
                 int w = bitmap.getWidth(), h = bitmap.getHeight();
                 int[] pix = new int[w * h];
                 bitmap.getPixels(pix, 0, w, 0, 0, w, h);

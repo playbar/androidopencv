@@ -21,6 +21,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
-    //    compile project(':sdk')
-    compile files('libs/opencv library - 3.3.0.jar')
+    compile project(':sdk')
+    compile 'com.android.support:appcompat-v7:23.1.1'
+//    compile files('libs/opencv library - 3.3.0.jar')
 }
