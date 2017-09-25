@@ -1,4 +1,4 @@
 include ':face-detection'
 include ':puzzle'
 include ':sdk'
-include ':camera-calibration'
+include ':color-blob-detection'
