@@ -1,5 +1,5 @@
 #include "com_white_imagesobelfilter_nativeSobelFilter.h"
-#include <opencv2/opencv.hpp>//Õâ¸öÍ·ÎÄ¼şÒ»¶¨Òª°üº¬½øÀ´µÄ
+#include <opencv2/opencv.hpp>//è¿™ä¸ªå¤´æ–‡ä»¶ä¸€å®šè¦åŒ…å«è¿›æ¥çš„
 #include<CL/cl.h>
 #include"aopencl.h"
 #include<math.h>
@@ -9,7 +9,7 @@
 using namespace std;
 using namespace cv;
 
-#define N 20	//ÕâÀïµÄNÊÇsobelÂË²¨µÄãĞÖµ
+#define N 20	//è¿™é‡Œçš„Næ˜¯sobelæ»¤æ³¢çš„é˜ˆå€¼
 #define  KERNEL_SRC "\n" \
 	"			__kernel void Sobel(__global char *array1, __global char *array2, __global int *array3)		\n "\
 	"			{																							\n "\
@@ -45,7 +45,7 @@ using namespace cv;
 	"				}																						\n "\
 "}"
 
-//ÏÂÃæÊÇÈı¸öº¯ÊıµÄÉùÃ÷
+//ä¸‹é¢æ˜¯ä¸‰ä¸ªå‡½æ•°çš„å£°æ˜
 void CPU_Sobel(IplImage* inputImg_gray, IplImage* outputImg);
 int GPU_Sobel(IplImage* inputImg_gray, IplImage* outputImg);
 double difference(IplImage* input1, IplImage* input2, IplImage* output);
@@ -54,13 +54,13 @@ extern "C" {
 
 JNIEXPORT jstring JNICALL Java_com_white_imagesobelfilter_nativeSobelFilter_sobelFilter(
 		JNIEnv* env, jobject thiz, jstring imagePath) {
-	/*´Ó·½·¨µÄ²ÎÊıÖĞµÃµ½ÏàÓ¦µÄ²¼¶ûÖµºÍ×Ö·û´®
+	/*ä»æ–¹æ³•çš„å‚æ•°ä¸­å¾—åˆ°ç›¸åº”çš„å¸ƒå°”å€¼å’Œå­—ç¬¦ä¸²
 	 *(*env)->NewStringUTF(env, "Hello from JNI !");
-	 *ÕâÒ»ĞĞ£¬ÕâÊÇcµÄĞ´·¨£¬¶øÎÒµÄÊÇcpp³ÌĞò£¬ĞèÒª¸ÄĞ´³ÉÏÂÃæµÄĞÎÊ½
+	 *è¿™ä¸€è¡Œï¼Œè¿™æ˜¯cçš„å†™æ³•ï¼Œè€Œæˆ‘çš„æ˜¯cppç¨‹åºï¼Œéœ€è¦æ”¹å†™æˆä¸‹é¢çš„å½¢å¼
 	 */
 	char *clImagePath = (char *) (env)->GetStringUTFChars(imagePath, 0);
 
-	//¶ÁÈ¡Í¼ÏñclImagePath
+	//è¯»å–å›¾åƒclImagePath
 	const char* imagename = clImagePath;
 	IplImage* inputImg = cvLoadImage(imagename);
 
@@ -68,10 +68,10 @@ JNIEXPORT jstring JNICALL Java_com_white_imagesobelfilter_nativeSobelFilter_sobe
 	size.width = inputImg->width;
 	size.height = inputImg->height;
 
-	//³õÊ¼»¯ÊäÈë£¬µÃµ½»Ò¶ÈÍ¼
+	//åˆå§‹åŒ–è¾“å…¥ï¼Œå¾—åˆ°ç°åº¦å›¾
 	IplImage* inputImg_gray = cvCreateImage(size, IPL_DEPTH_8U, 1);
 	cvCvtColor(inputImg, inputImg_gray, CV_BGR2GRAY); //RGB2GRAY
-	//³õÊ¼»¯Êä³ö
+	//åˆå§‹åŒ–è¾“å‡º
 	IplImage* cpu_outputImg = cvCreateImage(size, IPL_DEPTH_8U, 1);
 	IplImage* gpu_outputImg = cvCreateImage(size, IPL_DEPTH_8U, 1);
 
@@ -79,27 +79,27 @@ JNIEXPORT jstring JNICALL Java_com_white_imagesobelfilter_nativeSobelFilter_sobe
 	double CPU_time, GPU_time;
 
 	//GPU
-	start = clock();	//gpu¼ÆÊ±¿ªÊ¼
+	start = clock();	//gpuè®¡æ—¶å¼€å§‹
 //	for (int i = 0; i < 10; i++)
-		GPU_Sobel(inputImg_gray, gpu_outputImg);
-	finish = clock();	//gpu¼ÆÊ±½áÊø
+	GPU_Sobel(inputImg_gray, gpu_outputImg);
+	finish = clock();	//gpuè®¡æ—¶ç»“æŸ
 	GPU_time = (double) (finish - start) / CLOCKS_PER_SEC;
 
 	//CPU
-	start = clock();	//cpu¼ÆÊ±¿ªÊ¼
+	start = clock();	//cpuè®¡æ—¶å¼€å§‹
 //	for (int i = 0; i < 10; i++)
-		CPU_Sobel(inputImg_gray, cpu_outputImg);
-	finish = clock();	//cpu¼ÆÊ±½áÊø
+	CPU_Sobel(inputImg_gray, cpu_outputImg);
+	finish = clock();	//cpuè®¡æ—¶ç»“æŸ
 	CPU_time = (double) (finish - start) / CLOCKS_PER_SEC;
 
-	double s = CPU_time / GPU_time;	//¼ÓËÙ±È
+	double s = CPU_time / GPU_time;	//åŠ é€Ÿæ¯”
 
-	//²îÒìÍ¼£¬²îÒì°Ù·Ö±È
+	//å·®å¼‚å›¾ï¼Œå·®å¼‚ç™¾åˆ†æ¯”
 	IplImage* differenceImg = cvCreateImage(size, IPL_DEPTH_8U, 1);
 	double f = 0.0;
 	f = difference(cpu_outputImg, gpu_outputImg, differenceImg);
 
-	//±£´æÍ¼Ïñ
+	//ä¿å­˜å›¾åƒ
 	cvSaveImage("/storage/sdcard0/Sobel_input_gray.jpg", inputImg_gray);
 	cvSaveImage("/storage/sdcard0/cpu_sobel.jpg", cpu_outputImg);
 	cvSaveImage("/storage/sdcard0/gpu_sobel.jpg", gpu_outputImg);
@@ -128,7 +128,7 @@ JNIEXPORT jstring JNICALL Java_com_white_imagesobelfilter_nativeSobelFilter_sobe
 //	char zz[4];
 //	sprintf(zz, "%d", z);
 
-	/*ÏÂÃæµÄ·µ»Ø×Ö·û´®Ğ´·¨ÓĞµã²»Í¬*/
+	/*ä¸‹é¢çš„è¿”å›å­—ç¬¦ä¸²å†™æ³•æœ‰ç‚¹ä¸åŒ*/
 	const char* result = rr;
 	return env->NewStringUTF(rr);
 }
@@ -141,35 +141,35 @@ void CPU_Sobel(IplImage* inputImg_gray, IplImage* outputImg) {
 	for (int i = 1; i < inputImg_gray->height - 1; i++) {
 		for (int j = 1; j < inputImg_gray->width - 1; j++) {
 			a00 = inputImg_gray->imageData[j - 1
-					+ inputImg_gray->widthStep * (i - 1)];
+										   + inputImg_gray->widthStep * (i - 1)];
 			a01 = inputImg_gray->imageData[j
-					+ inputImg_gray->widthStep * (i - 1)];
+										   + inputImg_gray->widthStep * (i - 1)];
 			a02 = inputImg_gray->imageData[j + 1
-					+ inputImg_gray->widthStep * (i - 1)];
+										   + inputImg_gray->widthStep * (i - 1)];
 			a10 =
 					inputImg_gray->imageData[j - 1
-							+ inputImg_gray->widthStep * i];
+											 + inputImg_gray->widthStep * i];
 			a11 = inputImg_gray->imageData[j + inputImg_gray->widthStep * i];
 			a12 =
 					inputImg_gray->imageData[j + 1
-							+ inputImg_gray->widthStep * i];
+											 + inputImg_gray->widthStep * i];
 			a20 = inputImg_gray->imageData[j - 1
-					+ inputImg_gray->widthStep * (i + 1)];
+										   + inputImg_gray->widthStep * (i + 1)];
 			a21 = inputImg_gray->imageData[j
-					+ inputImg_gray->widthStep * (i + 1)];
+										   + inputImg_gray->widthStep * (i + 1)];
 			a22 = inputImg_gray->imageData[j + 1
-					+ inputImg_gray->widthStep * (i + 1)];
+										   + inputImg_gray->widthStep * (i + 1)];
 
-			// x·½ÏòÉÏµÄ½üËÆµ¼Êı
+			// xæ–¹å‘ä¸Šçš„è¿‘ä¼¼å¯¼æ•°
 			float ux = a20 * (1) + a21 * (2) + a22 * (1) + a00 * (-1)
-					+ a01 * (-2) + a02 * (-1);
-			// y·½ÏòÉÏµÄ½üËÆµ¼Êı
+					   + a01 * (-2) + a02 * (-1);
+			// yæ–¹å‘ä¸Šçš„è¿‘ä¼¼å¯¼æ•°
 			float uy = a02 * (1) + a12 * (2) + a22 * (1) + a00 * (-1)
-					+ a10 * (-2) + a20 * (-1);
-			//Ìİ¶È
+					   + a10 * (-2) + a20 * (-1);
+			//æ¢¯åº¦
 			float u = sqrt(ux * ux + uy * uy);
 
-			//ãĞÖµ·¨È·¶¨±ßÔµ
+			//é˜ˆå€¼æ³•ç¡®å®šè¾¹ç¼˜
 			if (u > 255) {
 				u = 255;
 			} else if (u < N) {
@@ -180,10 +180,10 @@ void CPU_Sobel(IplImage* inputImg_gray, IplImage* outputImg) {
 	}
 }
 int GPU_Sobel(IplImage* inputImg_gray, IplImage* outputImg) {
-	/*ß@ÑeÒ»¶¨Òª³õÊ¼»¯¸÷¸öº¯Êı*/
+	/*é€™è£¡ä¸€å®šè¦åˆå§‹åŒ–å„ä¸ªå‡½æ•°*/
 
 	initFns();
-	/*ËŞÖ÷»ú±äÁ¿*/
+	/*å®¿ä¸»æœºå˜é‡*/
 	cl_uint numPlatforms; //the NO. of platforms
 	cl_platform_id platform = NULL; //the chosen platform
 	cl_int status;
@@ -244,7 +244,7 @@ int GPU_Sobel(IplImage* inputImg_gray, IplImage* outputImg) {
 //	}
 	devices = (cl_device_id*) malloc(numDevices * sizeof(cl_device_id));
 	status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, numDevices, devices,
-			NULL);
+							NULL);
 
 	/*Step 3: Create context.*/
 	context = clCreateContext(NULL, 1, devices, NULL, NULL, &status);
@@ -256,19 +256,19 @@ int GPU_Sobel(IplImage* inputImg_gray, IplImage* outputImg) {
 	const char *source = KERNEL_SRC;
 	size_t sourceSize[] = { strlen(source) };
 	program = clCreateProgramWithSource(context, 1, &source, sourceSize,
-			&status);
+										&status);
 
 	/*Step 6: Build program. */
 	status = clBuildProgram(program, 1, devices, NULL, NULL, NULL);
 
 	a1 = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-			sizeof(unsigned char) * IN_DATA_SIZE, inputData1, &status);
+						sizeof(unsigned char) * IN_DATA_SIZE, inputData1, &status);
 
 	a2 = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-			sizeof(unsigned char) * OUT_DATA_SIZE, outputData, &status);
+						sizeof(unsigned char) * OUT_DATA_SIZE, outputData, &status);
 
 	a3 = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-			sizeof(int) * 3, inputData2, &status);
+						sizeof(int) * 3, inputData2, &status);
 
 	/*Step 8: Create kernel object */
 	kernel = clCreateKernel(program, "Sobel", &status);
@@ -282,22 +282,22 @@ int GPU_Sobel(IplImage* inputImg_gray, IplImage* outputImg) {
 	size_t global[2];
 	global[0] = (
 			IMG_WIDTH % local[0] == 0 ?
-					IMG_WIDTH : (IMG_WIDTH + local[0] - IMG_WIDTH % local[0]));
+			IMG_WIDTH : (IMG_WIDTH + local[0] - IMG_WIDTH % local[0]));
 	global[1] =
 			(IMG_HEIGHT % local[1] == 0 ?
-					IMG_HEIGHT : (IMG_HEIGHT + local[1] - IMG_HEIGHT % local[1]));
+			 IMG_HEIGHT : (IMG_HEIGHT + local[1] - IMG_HEIGHT % local[1]));
 //	size_t local[] = { 2, 2 };
 //		size_t global[]={10,10};
 
 	// enqueue the kernel command for execution
 	status = clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL, global,
-			local, 0, NULL, NULL);
+									local, 0, NULL, NULL);
 	if (status != 0)
 		return status;
 	clFinish(commandQueue);
 
 	clEnqueueReadBuffer(commandQueue, a2, CL_TRUE, 0,
-			sizeof(unsigned char) * OUT_DATA_SIZE, outputData, 0, NULL, NULL);
+						sizeof(unsigned char) * OUT_DATA_SIZE, outputData, 0, NULL, NULL);
 
 	clReleaseMemObject(a1);
 	clReleaseMemObject(a2);
@@ -316,14 +316,14 @@ double difference(IplImage* input1, IplImage* input2, IplImage* output) {
 	for (int i = 0; i < input1->height; i++) {
 		for (int j = 0; j < input1->width; j++) {
 			a = input1->imageData[j + input1->widthStep * i]
-					- input2->imageData[j + input2->widthStep * i];
+				- input2->imageData[j + input2->widthStep * i];
 			output->imageData[j + output->widthStep * i] = a;
 			if (a != 0) {
 				k++;
 			}
 		}
 	}
-	printf("²îÒìµã£º%d\n", k);
+	printf("å·®å¼‚ç‚¹ï¼š%d\n", k);
 	re = (double) k / (double) (input1->height * input1->width);
 	return re;
 }
